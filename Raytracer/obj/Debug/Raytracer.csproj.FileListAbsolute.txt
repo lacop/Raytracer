@@ -1,0 +1,5 @@
+C:\Users\lacop\Documents\Visual Studio 2008\Projects\Raytracer\Raytracer\bin\Debug\Raytracer.exe
+C:\Users\lacop\Documents\Visual Studio 2008\Projects\Raytracer\Raytracer\bin\Debug\Raytracer.pdb
+C:\Users\lacop\Documents\Visual Studio 2008\Projects\Raytracer\Raytracer\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\lacop\Documents\Visual Studio 2008\Projects\Raytracer\Raytracer\obj\Debug\Raytracer.exe
+C:\Users\lacop\Documents\Visual Studio 2008\Projects\Raytracer\Raytracer\obj\Debug\Raytracer.pdb
