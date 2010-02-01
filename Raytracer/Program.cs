@@ -120,9 +120,10 @@ namespace Raytracer
                     Vector color = new Vector(0, 0, 0);
 
                     // Supersampling
-                    for (float i = -0.25f; i <= 0.25f; i += 0.25f)
+                    //*
+                    for (float i = -0.33f; i <= 0.35f; i += 0.33f)
                     {
-                        for (float j = -0.25f; j <= 0.25f; j += 0.25f)
+                        for (float j = -0.33f; j <= 0.35f; j += 0.33f)
                         {/**/
 
                             // Orthogonal projection
@@ -132,11 +133,16 @@ namespace Raytracer
                             // Perspective
                             //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
                             //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
-                            Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);
+                            
+                            /*
+                            Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
+                            Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
+                            
                             Vector o = new Vector(0, 0, -10);
                             Ray r = new Ray(o, (pt - o).Normalize());
 
                             color += Trace(r, 0);
+                    //*
                         }
                     }
                     color *= 1.0f/9.0f;/**/
