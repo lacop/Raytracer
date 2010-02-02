@@ -159,7 +159,7 @@ namespace Raytracer
             }
             sw.Stop();
 
-            b.Save("out.png", ImageFormat.Png);
+            b.Save("../../../out.png", ImageFormat.Png);
 
             //*
             Console.WriteLine();
