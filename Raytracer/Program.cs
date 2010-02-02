@@ -58,10 +58,10 @@ namespace Raytracer
                              
                              //bikker v3 scene
                              new Plane(new Vector(0, 1, 0), 4.4f, new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)), //ground
-                             new Plane(new Vector(0.4f, 0, -1), 12, new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.0f)), //back
-                             new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.5f, 0.2f)), //big sphere
-                             new Sphere(new Vector(-5.5f, -0.5f, 7), 2, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.5f, 1.0f)), //small sphere
-                             new Sphere(new Vector(-1.5f, -2.5f, 1.5f   ), 1.5f, new Material(new Vector(1.0f, 0.4f, 0.4f), 0.5f, 0.0f)), //extra sphere
+                             new Plane(new Vector(0.4f, 0, -1), 12, new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)), //back
+                             new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)), //big sphere
+                             new Sphere(new Vector(-5.5f, -0.5f, 7), 2, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.7f, 0.6f)), //small sphere
+                             new Sphere(new Vector(-1.5f, -2.5f, 1.5f   ), 1.5f, new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)), //extra sphere
                              
                              //new Sphere(new Vector(-5.5f, -0.5f, 7), 2f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
                              //new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
@@ -120,7 +120,7 @@ namespace Raytracer
                     Vector color = new Vector(0, 0, 0);
 
                     // Supersampling
-                    //*
+                    /*
                     for (float i = -0.33f; i <= 0.35f; i += 0.33f)
                     {
                         for (float j = -0.33f; j <= 0.35f; j += 0.33f)
@@ -134,7 +134,7 @@ namespace Raytracer
                             //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
                             //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
                             
-                            /*
+                            //*
                             Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
                             Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
                             
@@ -142,7 +142,7 @@ namespace Raytracer
                             Ray r = new Ray(o, (pt - o).Normalize());
 
                             color += Trace(r, 0);
-                    //*
+                    /*
                         }
                     }
                     color *= 1.0f/9.0f;/**/
@@ -186,8 +186,10 @@ namespace Raytracer
             if (depth > stats_maxdepth)
                 stats_maxdepth = depth;
 
+            if (depth > 10)
+                return new Vector(0, 0, 0); // TODO: renderstate, maxdepth
             
-            float? closest = null;
+            float closest = float.PositiveInfinity;
             Primitive prim = null;
 
             foreach (var p in primitives)
@@ -195,15 +197,7 @@ namespace Raytracer
                 float t;
                 if (p.Intersects(r, out t) && t > 0.0f)
                 {
-                    if (closest.HasValue)
-                    {
-                        if (t < closest.Value)
-                        {
-                            closest = System.Math.Min(closest.Value, t);
-                            prim = p;
-                        }
-                    }
-                    else
+                    if (t < closest)
                     {
                         closest = t;
                         prim = p;
@@ -211,13 +205,13 @@ namespace Raytracer
                 }
             }
 
-            if (!closest.HasValue)
+            if (prim == null)
             {
                 stats_miss++;
                 return new Vector(0, 0, 0); //TODO: background / skybox
             }
 
-            Vector ip = r.Origin + r.Direction.Normalize()*closest.Value;
+            Vector ip = r.Origin + r.Direction*closest;
 
             //TODO: custom class for colors with clamping, rgb/hsv/... models, etc
             Vector color = new Vector(0, 0, 0);
@@ -244,12 +238,9 @@ namespace Raytracer
 
                 if (shade > 0)
                 {
-                    Vector l = light.Position - ip;
-                    l = l.Normalize();
-
                     Vector n = prim.Normal(ip);
 
-                    float d = n.Dot(l);
+                    float d = n.Dot(dir);
                     if (d > 0)
                     {
                         color += prim.Material.Color*prim.Material.Diffuse*d*shade; //flipped-params operators
@@ -262,8 +253,9 @@ namespace Raytracer
             if (prim.Material.Reflection > 0 && depth <= 10) //TODO: render state, limits, ...
             {
                 Vector n = prim.Normal(ip);
-                Vector rr = (r.Direction.Normalize() - n*2.0f*n.Dot(r.Direction.Normalize())).Normalize();
-                color += Trace(new Ray(ip + rr*10e-4f, rr), depth + 1)*prim.Material.Reflection; //TODO: fix epsilon
+                Vector rr = (r.Direction - n*2.0f*n.Dot(r.Direction)).Normalize();
+                
+                color = color*(1.0f - prim.Material.Reflection) + Trace(new Ray(ip + rr*10e-4f, rr), depth + 1)*prim.Material.Reflection; //TODO: fix epsilon
                 //color = Trace(new Ray(ip + rr*float.Epsilon, rr), depth + 1);
                 //color = Trace(new Ray(ip + rr*0.01f,rr), depth + 1);
             }

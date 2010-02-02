@@ -10,26 +10,32 @@ namespace Raytracer.Primitives
     class Plane : Primitive
     {
         //TODO: protect with properties and autonormalize
-        public Vector Norm;
+        private Vector _norm;
+        public Vector Norm
+        {
+            get { return _norm; }
+            set { _norm = value.Normalize(); }
+        }
+
         public float Dist;
 
         public Plane(Vector norm, float dist, Material material)
         {
-            Norm = norm.Normalize();
+            _norm = norm.Normalize();
             Dist = dist;
             Material = material;
         }
 
         public override bool Intersects(Ray r, out float t)
         {
-            float d = Norm.Dot(r.Direction.Normalize());
+            float d = _norm.Dot(r.Direction);
             if (d == 0)
             {
                 t = float.PositiveInfinity;
                 return false;
             }
 
-            float dist = -(Norm.Dot(r.Origin) + Dist) / d;
+            float dist = -(_norm.Dot(r.Origin) + Dist) / d;
             if (dist <= 0)
             {
                 t = float.PositiveInfinity;
@@ -43,7 +49,7 @@ namespace Raytracer.Primitives
 
         public override Vector Normal(Vector p)
         {
-            return Norm;
+            return _norm;
         }
     }
 }

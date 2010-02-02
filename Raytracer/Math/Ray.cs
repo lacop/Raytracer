@@ -8,7 +8,13 @@ namespace Raytracer.Math
     class Ray
     {
         public Vector Origin;
-        public Vector Direction;
+        
+        private Vector _direction;
+        public Vector Direction
+        {
+            get { return _direction; }
+            set { _direction = value.Normalize(); }
+        }
 
         public Ray(Vector origin, Vector direction)
         {

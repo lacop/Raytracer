@@ -21,27 +21,9 @@ namespace Raytracer.Primitives
 
         public override bool Intersects(Ray r, out float t)
         {
-            //TODO: make direction vector normalized in ray property setter to avoid recalculation
-            /*Vector dir = r.Direction.Normalize();
-            Vector dst = Center - r.Origin;
-
-            float b = dst.Dot(dir);
-            float d = b*b - dst.Dot(dst) + Radius*Radius;
-            
-            if (d < 0)
-            {
-                t = float.PositiveInfinity;
-                return false;
-            }
-            
-            //TODO: check both solutions, eg. camera in object ...
-            t = b - (float) System.Math.Sqrt(d);
-
-            return true;*/
-            Vector dir = r.Direction.Normalize();
             Vector dst = r.Origin - Center;
 
-            float b = -dst.Dot(dir);
+            float b = -dst.Dot(r.Direction);
             float d = b * b - dst.Dot(dst) + Radius * Radius;
 
             if (d < 0)
