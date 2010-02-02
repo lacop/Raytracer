@@ -19,7 +19,21 @@ namespace Raytracer
         private static int stats_primary = 0;
         private static int stats_total = 0;
         private static int stats_maxdepth = 0;
-        private static int stats_miss = 0;        
+        private static int stats_miss = 0;
+
+        // Render setup
+        const int w = 800;
+        const int h = 600;
+
+        const float x1 = -4;
+        const float x2 = 4;
+        const float y1 = 3;
+        const float y2 = -3;
+
+        const int ss = 1; // Supersampling level
+
+        static float dx, dy;
+        static float ss_step, ss_lim;
 
         static void Main(string[] args)
         {
@@ -30,17 +44,6 @@ namespace Raytracer
             Console.WriteLine(s.Intersects(r));
             Console.ReadKey();
             */
-
-            // Render setup
-            const int w = 800;
-            const int h = 600;
-
-            const float x1 = -4;
-            const float x2 = 4;
-            const float y1 = 3;
-            const float y2 = -3;
-
-            const int ss = 1; // Supersampling level
 
             // Scene setup
             primitives = new Primitive[]
@@ -104,69 +107,46 @@ namespace Raytracer
 
                      };
 
-            Bitmap b = new Bitmap(w, h);
+            dx = (x2 - x1)/w;
+            dy = (y2 - y1)/h;
 
-            float dx = (x2 - x1)/w;
-            float dy = (y2 - y1)/h;
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            
             Console.Write("Rendering : ");
             int cl = Console.CursorLeft;
             int ct = Console.CursorTop;
             int cw = Console.WindowWidth - cl - 4;
 
-            float ss_step = 1.0f/ss;
-            
-            float ss_lim = (ss - 1)/2.0f * ss_step;
+            ss_step = 1.0f/ss;
+            ss_lim = (ss - 1)/2.0f * ss_step;
 
-            for (int x = 0; x < w; x++)
+            Color[] pixels = new Color[w*h];
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int y = 0; y < h; y++)
             {
-                for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
                 {
-                    Vector color = new Vector(0, 0, 0);
+                    Vector color = TracePixel(x, y);
 
-                    // Supersampling
-                    float i; int ii;
-                    for (i = -ss_lim, ii = 0; ii < ss; i += ss_step, ii++)
-                    {
-                        float j; int jj;
-                        for (j = -ss_lim, jj = 0; jj < ss; j += ss_step, jj++)
-                        {
-
-                            // Orthogonal projection
-                            //Vector pt = new Vector(-w/2 + x, -h/2 + y, -50);
-                            //Ray r = new Ray(pt, new Vector(0,0, 1));
-
-                            // Perspective
-                            //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
-                            //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
-                            
-                            /*
-                            Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
-                            Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
-                            
-                            Vector o = new Vector(0, 0, -10);
-                            Ray r = new Ray(o, (pt - o).Normalize());
-
-                            color += Trace(r, 0);
-                        }
-                    }
-                    color *= 1.0f/(ss*ss);
-                    
-                    b.SetPixel(x, y, Color.FromArgb((int)(255*color.X), (int)(255*color.Y), (int)(255*color.Z)));
-
+                    pixels[y*w+x] = Color.FromArgb((int) (255*color.X), (int) (255*color.Y), (int) (255*color.Z));
                 }
                 
                 Console.SetCursorPosition(cl, ct);
-                Console.Write(new string('#', (cw*x)/w));
+                Console.Write(new string('#', (cw*y)/h));
                 Console.SetCursorPosition(cl+cw, ct);
-                Console.Write(100*(x+1)/w + "%");
-                
+                Console.Write(100*(y+1)/h + "%");
             }
             sw.Stop();
 
+            // TODO: Lockbitmap direct write
+            Bitmap b = new Bitmap(w, h);
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    b.SetPixel(x, y, pixels[y*w+x]);
+                }
+            }
             b.Save("../../../out.png", ImageFormat.Png);
 
             //*
@@ -184,6 +164,40 @@ namespace Raytracer
 
 
 
+        }
+
+        public static Color[] TraceArea (int )
+
+        public static Vector TracePixel(int x, int y)
+        {
+            Vector color = new Vector(0, 0, 0);
+            float i; int ii;
+            for (i = -ss_lim, ii = 0; ii < ss; i += ss_step, ii++)
+            {
+                float j; int jj;
+                for (j = -ss_lim, jj = 0; jj < ss; j += ss_step, jj++)
+                {
+
+                    // Orthogonal projection
+                    //Vector pt = new Vector(-w/2 + x, -h/2 + y, -50);
+                    //Ray r = new Ray(pt, new Vector(0,0, 1));
+
+                    // Perspective
+                    //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
+                    //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
+                            
+                    /*
+                            Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
+                    Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
+                            
+                    Vector o = new Vector(0, 0, -10);
+                    Ray r = new Ray(o, (pt - o).Normalize());
+
+                    color += Trace(r, 0);
+                }
+            }
+            color *= 1.0f/(ss*ss);
+            return color;
         }
 
         public static Vector Trace (Ray r, int depth)
