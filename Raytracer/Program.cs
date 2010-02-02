@@ -31,9 +31,18 @@ namespace Raytracer
             Console.ReadKey();
             */
 
-            int w = 800;
-            int h = 600;
+            // Render setup
+            const int w = 800;
+            const int h = 600;
 
+            const float x1 = -4;
+            const float x2 = 4;
+            const float y1 = 3;
+            const float y2 = -3;
+
+            const int ss = 1; // Supersampling level
+
+            // Scene setup
             primitives = new Primitive[]
                          {
                              /*
@@ -97,11 +106,6 @@ namespace Raytracer
 
             Bitmap b = new Bitmap(w, h);
 
-            float x1 = -4;
-            float x2 = 4;
-            float y1 = 3;
-            float y2 = -3;
-
             float dx = (x2 - x1)/w;
             float dy = (y2 - y1)/h;
 
@@ -113,6 +117,10 @@ namespace Raytracer
             int ct = Console.CursorTop;
             int cw = Console.WindowWidth - cl - 4;
 
+            float ss_step = 1.0f/ss;
+            
+            float ss_lim = (ss - 1)/2.0f * ss_step;
+
             for (int x = 0; x < w; x++)
             {
                 for (int y = 0; y < h; y++)
@@ -120,11 +128,12 @@ namespace Raytracer
                     Vector color = new Vector(0, 0, 0);
 
                     // Supersampling
-                    /*
-                    for (float i = -0.33f; i <= 0.35f; i += 0.33f)
+                    float i; int ii;
+                    for (i = -ss_lim, ii = 0; ii < ss; i += ss_step, ii++)
                     {
-                        for (float j = -0.33f; j <= 0.35f; j += 0.33f)
-                        {/**/
+                        float j; int jj;
+                        for (j = -ss_lim, jj = 0; jj < ss; j += ss_step, jj++)
+                        {
 
                             // Orthogonal projection
                             //Vector pt = new Vector(-w/2 + x, -h/2 + y, -50);
@@ -134,7 +143,7 @@ namespace Raytracer
                             //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
                             //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
                             
-                            //*
+                            /*
                             Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
                             Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
                             
@@ -142,10 +151,9 @@ namespace Raytracer
                             Ray r = new Ray(o, (pt - o).Normalize());
 
                             color += Trace(r, 0);
-                    /*
                         }
                     }
-                    color *= 1.0f/9.0f;/**/
+                    color *= 1.0f/(ss*ss);
                     
                     b.SetPixel(x, y, Color.FromArgb((int)(255*color.X), (int)(255*color.Y), (int)(255*color.Z)));
 
