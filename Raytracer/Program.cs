@@ -35,6 +35,8 @@ namespace Raytracer
         static float dx, dy;
         static float ss_step, ss_lim;
 
+        private static float ambientLight = 0.125f;
+
         static void Main(string[] args)
         {
             /*
@@ -249,7 +251,7 @@ namespace Raytracer
 
             //TODO: custom class for colors with clamping, rgb/hsv/... models, etc
             Vector color = new Vector(0, 0, 0);
-            
+
             // Lightning
             foreach (var light in lights)
             {
@@ -257,8 +259,8 @@ namespace Raytracer
                 float dist = dir.Length();
                 dir = dir.Normalize();
 
-                Ray lr = new Ray(ip+dir*float.Epsilon, dir);
-                
+                Ray lr = new Ray(ip + dir*float.Epsilon, dir);
+
                 float shade = 1.0f;
                 foreach (var p in primitives)
                 {
@@ -269,17 +271,16 @@ namespace Raytracer
                         break;
                     }
                 }
+                
+                Vector n = prim.Normal(ip);
 
-                if (shade > 0)
-                {
-                    Vector n = prim.Normal(ip);
+                float d = n.Dot(dir);
 
-                    float d = n.Dot(dir);
-                    if (d > 0)
-                    {
-                        color += prim.Material.Color*prim.Material.Diffuse*d*shade; //flipped-params operators
-                    }
-                }
+                if (d < 0)
+                    d = 0;
+
+                color += prim.Material.Color*prim.Material.Diffuse*(d*shade + ambientLight); //flipped-params operators
+
             }
             //color = prim.Material.Color*prim.Material.Diffuse; //no lightning mode
 
