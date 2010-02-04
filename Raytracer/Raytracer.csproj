@@ -54,6 +54,7 @@
     <Compile Include="Primitives\Plane.cs" />
     <Compile Include="Primitives\Sphere.cs" />
     <Compile Include="Primitives\Triangle.cs" />
+    <Compile Include="Primitives\TriangleMeshLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

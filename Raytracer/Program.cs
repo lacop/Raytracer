@@ -13,14 +13,18 @@ namespace Raytracer
 {
     class Program
     {
-        private static Primitive[] primitives;
-        private static Light[] lights;
+        private static List<Primitive> primitives = new List<Primitive>();
+        private static List<Light> lights = new List<Light>();
 
         private static long stats_primary = 0;
         private static long stats_total = 0;
         private static long stats_maxdepth = 0;
         private static long stats_miss = 0;
 
+        static float dx, dy;
+        static float ss_step, ss_lim;
+
+        
         // Render setup
         const int w = 800;
         const int h = 600;
@@ -32,96 +36,40 @@ namespace Raytracer
 
         const int ss = 1; // Supersampling level
 
-        static float dx, dy;
-        static float ss_step, ss_lim;
-
         private static float ambientLight = 0.125f;
 
         static void Main(string[] args)
         {
-            /*
-            Sphere s = new Sphere(new Vector(0, 0, 10), 5);
-            Ray r = new Ray(new Vector(0, 0, 0), new Vector(1, 0, 2));
-
-            Console.WriteLine(s.Intersects(r));
-            Console.ReadKey();
-            */
-
             // Scene setup
-            primitives = new Primitive[]
-                         {
-                             /*
-                             new Plane(new Vector(0, 0, 1), 3, new Material(new Vector(0.8f, 0.8f, 0.8f), 0.8f, 0.0f)),
-                             new Plane(new Vector(0, 1, 0), -2, new Material(new Vector(0.8f, 0.8f, 0.8f), 0.8f, 0.0f)),
-                             new Plane(new Vector(0, -1, 0), -2, new Material(new Vector(0.8f, 0.8f, 0.8f), 0.8f, 0.0f)),
-                             new Plane(new Vector(1, 0, 0), -3f, new Material(new Vector(0, 0, 0.8f), 0.8f, 0.0f)),
-                             new Plane(new Vector(-1, 0, 0), -3f, new Material(new Vector(0.8f, 0, 0), 0.8f, 0.0f)),
-                             */
-
-                             //new Sphere(new Vector(0, 0, 200), 100, new Material(new Vector(0, 0.0f, 0), 0.0f, 1.0f)),
-                             //new Sphere(new Vector(100, 100, -300), 100, new Material(new Vector(1.0f, 1.0f, 0), 1.0f, 0.0f)),
-                             
-                             //new Sphere(new Vector(-50, 0, 100), 50, new Material(new Vector(1, 0, 0), 0.4f, 0.0f)),
-                             //new Sphere(new Vector(-200, 50, 150), 50, new Material(new Vector(1, 1, 0), 0.5f, 0.0f)),
-                             //new Sphere(new Vector(-100, 25, 180), 60, new Material(new Vector(0, 0, 0), 0.0f, 1.0f)),
-                             //new Sphere(new Vector(100, 150, 75), 20, new Material(new Vector(0, 0, 1), 0.8f, 0.0f)),
-                             
-                             // reflection
-                             //new Sphere(new Vector(0, -150, 200), 100, new Material(new Vector(0, 1.0f, 0), 1.0f, 0.0f)),
-                             //new Sphere(new Vector(200, -75, 400), 200, new Material(new Vector(1.0f, 0.0f, 0), 0.5f, 1.0f)),
-                             
-                             //bikker v3 scene
-                             
-                             new Plane(new Vector(0, 1, 0), 4.4f,
-                                       new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)), //ground
-                             new Plane(new Vector(0.4f, 0, -1), 12,
-                                       new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)), //back
-                             new Sphere(new Vector(2, 0.8f, 3), 2.5f,
-                                        new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)), //big sphere
-                             new Sphere(new Vector(-5.5f, -0.5f, 7), 2,
-                                        new Material(new Vector(0.7f, 0.7f, 1.0f), 0.7f, 0.6f)), //small sphere
-                             new Sphere(new Vector(-1.5f, -2.5f, 1.5f), 1.5f,
-                                        new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)), //extra sphere
-                             
-                             new Triangle(new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
-                                          new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)),
-                             
-                             /*new Sphere(new Vector(0, 2, -2), 0.5f, new Material(new Vector(1, 0, 0), 1, 0)),
-                             new Sphere(new Vector(3, -2, -2), 0.5f, new Material(new Vector(0, 1, 0), 1, 0)),
-                             new Sphere(new Vector(-3, -2, -2), 0.5f, new Material(new Vector(0, 0, 1), 1, 0)),
-                             new Triangle(new Vector(-3, -2, -2),new Vector(3, -2, -2),new Vector(0, 2, -2),new Material(new Vector(1, 1, 0), 1, 0))
-                             */
-                             //new Sphere(new Vector(-5.5f, -0.5f, 7), 2f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
-                             //new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
-                             //new Sphere(new Vector(0, 5, 5), 1.5f, new Material(new Vector(1, 1, 1), 1.0f, 0.0f)),
-
-                             //bikker v2 scene
-                             //new Plane(new Vector(0, 1, 0), 4.4f, new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)),
-                             //new Sphere(new Vector(1, -0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 0.7f), 1.0f, 0.0f)),
-                             //new Sphere(new Vector(-5.5f, -0.5f, 7), 2, new Material(new Vector(0.7f, 0.7f, 1.0f), 1.0f, 0.0f)),
-                             
-                         };
             
-            lights = new[]
-                     {
-                         //new Light(new Vector(0, 0, 0)), 
-                         /*new Light(new Vector(0, -500, 200)),
-                         new Light(new Vector(100, -100, 300)),
-                         new Light(new Vector(200, 100, 400)),*/
-                         //new Light(new Vector(0, 0, 0)),
-                         //new Light(new Vector(300, -100, 100)),
-                         //new Light(new Vector(500, 300, -20)),
-                         //new Light(new Vector(-200, -200, 50)),
+            primitives.Add(new Plane(
+                new Vector(0, 1, 0), 4.4f, 
+                new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)));
+            primitives.Add(new Plane(
+                new Vector(0.4f, 0, -1), 12,
+                new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));
+            primitives.Add(new Sphere(
+                new Vector(2, 0.8f, 3), 2.5f,
+                new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)));
+            primitives.Add(new Sphere(
+                new Vector(-5.5f, -0.5f, 7), 2,
+                new Material(new Vector(0.7f, 0.7f, 1.0f), 0.7f, 0.6f)));
+            primitives.Add(new Sphere(
+                new Vector(-1.5f, -2.5f, 1.5f), 1.5f,
+                new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)));
+            primitives.Add(new Triangle(
+                new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
+                new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)));
+            
 
-                         //bikker v3 scene
-                         new Light(new Vector(0, 5, 5)), 
-                         new Light(new Vector(-3, 5, 1)), 
-
-                         //bikker v2 scene
-                         //new Light(new Vector(0, 5, 5)), 
-                         //new Light(new Vector(2, 5, 1)), 
-
-                     };
+            //primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
+            
+            lights.Add(new Light(new Vector(0, 5, 5)));
+            lights.Add(new Light(new Vector(-3, 5, 1)));
+            
+            //lights.Add(new Light(new Vector(3, -1, 2)));
+            
+            ////////////////////////////////////////////////////////////////
 
             dx = (x2 - x1)/w;
             dy = (y2 - y1)/h;
@@ -192,19 +140,14 @@ namespace Raytracer
                 for (j = -ss_lim, jj = 0; jj < ss; j += ss_step, jj++)
                 {
 
-                    // Orthogonal projection
+                    // Orthogonal projection (no supersampling!)
                     //Vector pt = new Vector(-w/2 + x, -h/2 + y, -50);
                     //Ray r = new Ray(pt, new Vector(0,0, 1));
 
                     // Perspective
-                    //Vector pt = new Vector(-w/2 + x + i, -h/2 + y + j, 0);
-                    //Vector pt = new Vector(-w / 2 + x, -h / 2 + y, 0);
+                    Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -4);
                             
-                    /*
-                            Vector pt = new Vector(x1+x*dx, y1+y*dy, -5);/*/
-                    Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -5); //supersample /**/
-                            
-                    Vector o = new Vector(0, 0, -10);
+                    Vector o = new Vector(1.5f, 1, -10);
                     Ray r = new Ray(o, (pt - o).Normalize());
 
                     color += Trace(r, 0);
@@ -291,8 +234,6 @@ namespace Raytracer
                 Vector rr = (r.Direction - n*2.0f*n.Dot(r.Direction)).Normalize();
                 
                 color = color*(1.0f - prim.Material.Reflection) + Trace(new Ray(ip + rr*10e-4f, rr), depth + 1)*prim.Material.Reflection; //TODO: fix epsilon
-                //color = Trace(new Ray(ip + rr*float.Epsilon, rr), depth + 1);
-                //color = Trace(new Ray(ip + rr*0.01f,rr), depth + 1);
             }
 
             color.X = color.X > 1 ? 1 : color.X;
