@@ -26,10 +26,16 @@ namespace Raytracer.Math
             float invlen = 1.0f/Length();
             return new Vector(X*invlen, Y*invlen, Z*invlen);
         }
-
+        
+        //TODO: static versions
         public float Dot (Vector v)
         {
             return X*v.X + Y*v.Y + Z*v.Z;
+        }
+
+        public static Vector Cross (Vector a, Vector b)
+        {
+            return new Vector(a.Y*b.Z - a.Z*b.Y, a.Z*b.X - a.X*b.Z, a.X*b.Y - a.Y*b.X);
         }
 
         public static Vector operator+ (Vector a, Vector b)

@@ -69,12 +69,26 @@ namespace Raytracer
                              //new Sphere(new Vector(200, -75, 400), 200, new Material(new Vector(1.0f, 0.0f, 0), 0.5f, 1.0f)),
                              
                              //bikker v3 scene
-                             new Plane(new Vector(0, 1, 0), 4.4f, new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)), //ground
-                             new Plane(new Vector(0.4f, 0, -1), 12, new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)), //back
-                             new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)), //big sphere
-                             new Sphere(new Vector(-5.5f, -0.5f, 7), 2, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.7f, 0.6f)), //small sphere
-                             new Sphere(new Vector(-1.5f, -2.5f, 1.5f   ), 1.5f, new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)), //extra sphere
                              
+                             new Plane(new Vector(0, 1, 0), 4.4f,
+                                       new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)), //ground
+                             new Plane(new Vector(0.4f, 0, -1), 12,
+                                       new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)), //back
+                             new Sphere(new Vector(2, 0.8f, 3), 2.5f,
+                                        new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)), //big sphere
+                             new Sphere(new Vector(-5.5f, -0.5f, 7), 2,
+                                        new Material(new Vector(0.7f, 0.7f, 1.0f), 0.7f, 0.6f)), //small sphere
+                             new Sphere(new Vector(-1.5f, -2.5f, 1.5f), 1.5f,
+                                        new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)), //extra sphere
+                             
+                             new Triangle(new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
+                                          new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)),
+                             
+                             /*new Sphere(new Vector(0, 2, -2), 0.5f, new Material(new Vector(1, 0, 0), 1, 0)),
+                             new Sphere(new Vector(3, -2, -2), 0.5f, new Material(new Vector(0, 1, 0), 1, 0)),
+                             new Sphere(new Vector(-3, -2, -2), 0.5f, new Material(new Vector(0, 0, 1), 1, 0)),
+                             new Triangle(new Vector(-3, -2, -2),new Vector(3, -2, -2),new Vector(0, 2, -2),new Material(new Vector(1, 1, 0), 1, 0))
+                             */
                              //new Sphere(new Vector(-5.5f, -0.5f, 7), 2f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
                              //new Sphere(new Vector(2, 0.8f, 3), 2.5f, new Material(new Vector(0.7f, 0.7f, 1.0f), 0.8f, 0.0f)),
                              //new Sphere(new Vector(0, 5, 5), 1.5f, new Material(new Vector(1, 1, 1), 1.0f, 0.0f)),
