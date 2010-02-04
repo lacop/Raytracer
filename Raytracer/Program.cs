@@ -16,10 +16,10 @@ namespace Raytracer
         private static Primitive[] primitives;
         private static Light[] lights;
 
-        private static int stats_primary = 0;
-        private static int stats_total = 0;
-        private static int stats_maxdepth = 0;
-        private static int stats_miss = 0;
+        private static long stats_primary = 0;
+        private static long stats_total = 0;
+        private static long stats_maxdepth = 0;
+        private static long stats_miss = 0;
 
         // Render setup
         const int w = 800;
@@ -165,8 +165,6 @@ namespace Raytracer
 
 
         }
-
-        public static Color[] TraceArea (int )
 
         public static Vector TracePixel(int x, int y)
         {
