@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 
+using Raytracer.Acceleration;
 using Raytracer.Math;
 using Raytracer.Primitives;
 
@@ -15,6 +16,8 @@ namespace Raytracer
     {
         private static List<Primitive> primitives = new List<Primitive>();
         private static List<Light> lights = new List<Light>();
+
+        private static AccelerationStructure accel = new NullAccelerator();
 
         private static long stats_primary = 0;
         private static long stats_total = 0;
@@ -70,6 +73,8 @@ namespace Raytracer
             //lights.Add(new Light(new Vector(3, -1, 2)));
             
             ////////////////////////////////////////////////////////////////
+
+            accel.Build(primitives);
 
             dx = (x2 - x1)/w;
             dy = (y2 - y1)/h;
@@ -131,7 +136,7 @@ namespace Raytracer
         }
 
         public static Vector TracePixel(int x, int y)
-        {
+        {   
             Vector color = new Vector(0, 0, 0);
             float i; int ii;
             for (i = -ss_lim, ii = 0; ii < ss; i += ss_step, ii++)
@@ -171,18 +176,7 @@ namespace Raytracer
             float closest = float.PositiveInfinity;
             Primitive prim = null;
 
-            foreach (var p in primitives)
-            {
-                float t;
-                if (p.Intersects(r, out t) && t > 0.0f)
-                {
-                    if (t < closest)
-                    {
-                        closest = t;
-                        prim = p;
-                    }
-                }
-            }
+            accel.FindIntersection(r, out closest, out prim);           
 
             if (prim == null)
             {
