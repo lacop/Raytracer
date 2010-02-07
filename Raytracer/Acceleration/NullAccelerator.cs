@@ -16,7 +16,7 @@ namespace Raytracer.Acceleration
 
         public override void Build(List<Primitive> primitives)
         {
-            log.InfoFormat("Building nullaccelerator structure for {0} primitives ...", primitives.Count);
+            log.InfoFormat("Building nullaccelerator structure for {0} primitives", primitives.Count);
             this.primitives = primitives;
         }
 

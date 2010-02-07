@@ -80,13 +80,13 @@ namespace Raytracer
             log4net.Config.XmlConfigurator.Configure();
             
             
-            log.Info("Scene loaded, building acceleration structure ...");
+            log.Info("Scene loaded, building acceleration structure");
             accel.Build(primitives);
 
             dx = (x2 - x1)/w;
             dy = (y2 - y1)/h;
 
-            log.Info("Render starting ...");
+            log.Info("Render starting");
             Console.Write("Rendering : ");
             int cl = Console.CursorLeft;
             int ct = Console.CursorTop;
