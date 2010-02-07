@@ -19,7 +19,8 @@ namespace Raytracer
         private static List<Primitive> primitives = new List<Primitive>();
         private static List<Light> lights = new List<Light>();
 
-        private static AccelerationStructure accel = new NullAccelerator();
+        //private static AccelerationStructure accel = new NullAccelerator();
+        private static AccelerationStructure accel = new AABBAccelerator();
 
         private static long stats_primary = 0;
         private static long stats_total = 0;
@@ -33,11 +34,17 @@ namespace Raytracer
         // Render setup
         const int w = 800;
         const int h = 600;
-
+        //*
         const float x1 = -4;
         const float x2 = 4;
         const float y1 = 3;
         const float y2 = -3;
+        /*/
+        const float x1 = -0.1f;
+        const float x2 = 0.1f;
+        const float y1 = 0.5f;
+        const float y2 = -0.25f;
+        /**/
 
         const int ss = 1; // Supersampling level
 
@@ -65,14 +72,15 @@ namespace Raytracer
             primitives.Add(new Triangle(
                 new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
                 new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)));
-            
 
             //primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
+            //primitives = TriangleMeshLoader.LoadOBJ("../../../bunny.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
             
             lights.Add(new Light(new Vector(0, 5, 5)));
             lights.Add(new Light(new Vector(-3, 5, 1)));
             
-            //lights.Add(new Light(new Vector(3, -1, 2)));
+            lights.Add(new Light(new Vector(3, -1, 2)));
+            //lights.Add(new Light(new Vector(0, -1, -5)));
             
             ////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////
@@ -149,17 +157,20 @@ namespace Raytracer
                 float j; int jj;
                 for (j = -ss_lim, jj = 0; jj < ss; j += ss_step, jj++)
                 {
-
                     // Orthogonal projection (no supersampling!)
                     //Vector pt = new Vector(-w/2 + x, -h/2 + y, -50);
                     //Ray r = new Ray(pt, new Vector(0,0, 1));
 
                     // Perspective
-                    Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -4);
+                    // TODO: camera class with origin,lookat and FOV
+                    Vector pt = new Vector(x1 + x*dx + dx*i, y1 + y*dy + dy*j, -4);
+                    //Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -1);
                             
                     Vector o = new Vector(1.5f, 1, -10);
-                    Ray r = new Ray(o, (pt - o).Normalize());
+                    //Vector o = new Vector(0, 0.2f, -10);
 
+
+                    Ray r = new Ray(o, (pt - o).Normalize());
                     color += Trace(r, 0);
                 }
             }

@@ -50,9 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Acceleration\AABBAccelerator.cs" />
     <Compile Include="Acceleration\AccelerationStructure.cs" />
     <Compile Include="Acceleration\NullAccelerator.cs" />
     <Compile Include="Material.cs" />
+    <Compile Include="Math\AABB.cs" />
+    <Compile Include="Math\MathHelper.cs" />
     <Compile Include="Math\Ray.cs" />
     <Compile Include="Math\Vector.cs" />
     <Compile Include="Primitives\Primitive.cs" />

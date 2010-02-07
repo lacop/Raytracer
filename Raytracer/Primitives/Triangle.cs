@@ -73,6 +73,12 @@ namespace Raytracer.Primitives
         {
             return normal;
         }
+
+        public override AABB GetBoundingBox()
+        {
+            return new AABB(new Vector(MathHelper.Min(A.X, B.X, C.X), MathHelper.Min(A.Y, B.Y, C.Y),MathHelper.Min(A.Z, B.Z, C.Z)),
+                            new Vector(MathHelper.Max(A.X, B.X, C.X), MathHelper.Max(A.Y, B.Y, C.Y),MathHelper.Max(A.Z, B.Z, C.Z)));
+        }
     }
 }
     

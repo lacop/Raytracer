@@ -26,6 +26,11 @@ namespace Raytracer.Math
             float invlen = 1.0f/Length();
             return new Vector(X*invlen, Y*invlen, Z*invlen);
         }
+
+        public Vector Inverse ()
+        {
+            return new Vector(1.0f/X, 1.0f/Y, 1.0f/Z);
+        }
         
         //TODO: static versions
         public float Dot (Vector v)
@@ -44,7 +49,16 @@ namespace Raytracer.Math
         }
         public static Vector operator- (Vector a, Vector b)
         {
-            return new Vector(a.X-b.X, a.Y-b.Y, a.Z-b.Z);
+            return new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static Vector operator+ (Vector v, float a)
+        {
+            return new Vector(v.X + a, v.Y + a, v.Z + a);
+        }
+        public static Vector operator- (Vector v, float a)
+        {
+            return new Vector(v.X - a, v.Y - a, v.Z - a);
         }
 
         public static Vector operator* (Vector a, float f)
@@ -52,5 +66,9 @@ namespace Raytracer.Math
             return new Vector(a.X*f, a.Y*f, a.Z*f);
         }
 
+        public override string ToString()
+        {
+            return string.Format("({0}, {1}, {2})", X, Y, Z);
+        }
     }
 }

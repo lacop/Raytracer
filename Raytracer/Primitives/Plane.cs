@@ -51,5 +51,11 @@ namespace Raytracer.Primitives
         {
             return _norm;
         }
+
+        public override AABB GetBoundingBox()
+        {
+            return new AABB(new Vector(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity),
+                            new Vector(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity));
+        }
     }
 }

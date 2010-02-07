@@ -12,6 +12,6 @@ namespace Raytracer.Acceleration
     {
         public abstract void Build(List<Primitive> primitives);
 
-        public abstract bool FindIntersection(Ray r, out float t, out Primitive primitive);
+        public abstract bool FindIntersection (Ray r, out float closest, out Primitive closestPrimitive);
     }
 }

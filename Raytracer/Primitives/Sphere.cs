@@ -46,5 +46,10 @@ namespace Raytracer.Primitives
             Vector n = p - Center;
             return n.Normalize();
         }
+
+        public override AABB GetBoundingBox()
+        {
+            return new AABB(Center-Radius, Center+Radius);
+        }
     }
 }
