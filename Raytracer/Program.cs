@@ -14,6 +14,8 @@ namespace Raytracer
 {
     class Program
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof (Program));
+
         private static List<Primitive> primitives = new List<Primitive>();
         private static List<Light> lights = new List<Light>();
 
@@ -73,12 +75,18 @@ namespace Raytracer
             //lights.Add(new Light(new Vector(3, -1, 2)));
             
             ////////////////////////////////////////////////////////////////
-
+            ////////////////////////////////////////////////////////////////
+            
+            log4net.Config.XmlConfigurator.Configure();
+            
+            
+            log.Info("Scene loaded, building acceleration structure ...");
             accel.Build(primitives);
 
             dx = (x2 - x1)/w;
             dy = (y2 - y1)/h;
 
+            log.Info("Render starting ...");
             Console.Write("Rendering : ");
             int cl = Console.CursorLeft;
             int ct = Console.CursorTop;
@@ -106,7 +114,14 @@ namespace Raytracer
                 Console.Write(100*(y+1)/h + "%");
             }
             sw.Stop();
+            
+            log.InfoFormat("Render finished, time {0} ms", sw.ElapsedMilliseconds);
+            log.InfoFormat("Total rays : {0}", stats_total);
+            log.InfoFormat("Primary    : {0}\t{1} %", stats_primary, 100 * stats_primary / stats_total);
+            log.InfoFormat("Missed     : {0}\t{1} %", stats_miss, 100 * stats_miss / stats_total);
+            log.InfoFormat("Max depth  : {0}", stats_maxdepth);
 
+            log.Info("Saving to file ...");
             // TODO: Lockbitmap direct write
             Bitmap b = new Bitmap(w, h);
             for (int y = 0; y < h; y++)
@@ -118,20 +133,10 @@ namespace Raytracer
             }
             b.Save("../../../out.png", ImageFormat.Png);
 
-            //*
             Console.WriteLine();
-            Console.WriteLine("Render time: {0}ms", sw.ElapsedMilliseconds);
-            Console.WriteLine();
-            Console.WriteLine("Total rays : {0}", stats_total);
-            Console.WriteLine("Primary    : {0}\t\t{1} %", stats_primary, 100*stats_primary/stats_total);
-            Console.WriteLine("Missed     : {0}\t\t{1} %", stats_miss, 100*stats_miss/stats_total);
-            Console.WriteLine("Max depth  : {0}", stats_maxdepth);
-            
-            Console.WriteLine();
+            Console.WriteLine("FINISHED");
             Console.WriteLine("Press any key to exit ...");
-            Console.ReadKey();/**/
-
-
+            Console.ReadKey();
 
         }
 
