@@ -9,11 +9,53 @@ namespace Raytracer.Math
     {
         public float X, Y, Z;
 
+        public float this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
         public Vector(float x, float y, float z)
         {
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public Vector (Vector v)
+        {
+            X = v.X;
+            Y = v.Y;
+            Z = v.Z;
         }
 
         public float Length ()

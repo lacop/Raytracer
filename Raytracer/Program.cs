@@ -20,7 +20,8 @@ namespace Raytracer
         private static List<Light> lights = new List<Light>();
 
         //private static AccelerationStructure accel = new NullAccelerator();
-        private static AccelerationStructure accel = new AABBAccelerator();
+        //private static AccelerationStructure accel = new AABBAccelerator();
+        private static AccelerationStructure accel = new KDTreeAccelerator();
 
         private static long stats_primary = 0;
         private static long stats_total = 0;
@@ -53,13 +54,27 @@ namespace Raytracer
         static void Main(string[] args)
         {
             // Scene setup
-            
+            /*
             primitives.Add(new Plane(
                 new Vector(0, 1, 0), 4.4f, 
                 new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)));
             primitives.Add(new Plane(
                 new Vector(0.4f, 0, -1), 12,
+                new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));*/
+            primitives.Add(new Triangle(
+                new Vector(-10, -4, -10), new Vector(-15, -4, 10), new Vector(10, -4, -10),
                 new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));
+            primitives.Add(new Triangle(
+                new Vector(-15, -4, 10), new Vector(15, -4, 10), new Vector(10, -4, -10), 
+                new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));
+
+            primitives.Add(new Triangle(
+                new Vector(-15, -4, 10), new Vector(-15, 4, 10), new Vector(15, 4, 10),
+                new Material(new Vector(0.4f, 0.3f, 0.3f), 0.6f, 0.3f)));
+            primitives.Add(new Triangle(
+                new Vector(-15, -4, 10), new Vector(15, 4, 10), new Vector(15, -4, 10),
+                new Material(new Vector(0.4f, 0.3f, 0.3f), 0.6f, 0.3f)));
+
             primitives.Add(new Sphere(
                 new Vector(2, 0.8f, 3), 2.5f,
                 new Material(new Vector(0.7f, 0.7f, 1.0f), 0.6f, 0.2f)));
@@ -73,14 +88,14 @@ namespace Raytracer
                 new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
                 new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)));
 
-            //primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
+            primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
             //primitives = TriangleMeshLoader.LoadOBJ("../../../bunny.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
             
             lights.Add(new Light(new Vector(0, 5, 5)));
             lights.Add(new Light(new Vector(-3, 5, 1)));
             
             lights.Add(new Light(new Vector(3, -1, 2)));
-            //lights.Add(new Light(new Vector(0, -1, -5)));
+            lights.Add(new Light(new Vector(0, 4, -5)));
             
             ////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////
@@ -163,10 +178,10 @@ namespace Raytracer
 
                     // Perspective
                     // TODO: camera class with origin,lookat and FOV
-                    Vector pt = new Vector(x1 + x*dx + dx*i, y1 + y*dy + dy*j, -4);
+                    Vector pt = new Vector(x1 + x*dx + dx*i, y1 + y*dy + dy*j, -1);
                     //Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -1);
                             
-                    Vector o = new Vector(1.5f, 1, -10);
+                    Vector o = new Vector(1.5f, 1, -5);
                     //Vector o = new Vector(0, 0.2f, -10);
 
 

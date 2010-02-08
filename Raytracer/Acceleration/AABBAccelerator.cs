@@ -20,7 +20,7 @@ namespace Raytracer.Acceleration
             log.InfoFormat("Building acceleration structure for {0} primitives", primitives.Count);
             this.primitives = primitives;
             boundingBox = Primitive.GetBoundingBox(primitives);
-            log.InfoFormat("Bounding volume for scene is {0}-{1}", boundingBox.Min, boundingBox.Max);
+            log.InfoFormat("Bounding volume for scene is {0}", boundingBox);
         }
 
         public override bool FindIntersection(Ray r, out float closest, out Primitive closestPrimitive)

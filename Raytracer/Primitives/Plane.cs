@@ -54,8 +54,24 @@ namespace Raytracer.Primitives
 
         public override AABB GetBoundingBox()
         {
+            //TODO: not working for axis-parallel planes
             return new AABB(new Vector(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity),
                             new Vector(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity));
+        }
+
+        public override bool Intersects (AABB box)
+        {
+            return box.Intersects(GetBoundingBox());
+        }
+
+        public override float GetMinExtreme (int axis)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override float GetMaxExtreme (int axis)
+        {
+            throw new NotImplementedException();
         }
     }
 }

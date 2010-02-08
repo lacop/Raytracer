@@ -79,6 +79,22 @@ namespace Raytracer.Primitives
             return new AABB(new Vector(MathHelper.Min(A.X, B.X, C.X), MathHelper.Min(A.Y, B.Y, C.Y),MathHelper.Min(A.Z, B.Z, C.Z)),
                             new Vector(MathHelper.Max(A.X, B.X, C.X), MathHelper.Max(A.Y, B.Y, C.Y),MathHelper.Max(A.Z, B.Z, C.Z)));
         }
+
+        public override bool Intersects (AABB box)
+        {
+            //TODO: improve
+            return box.Intersects(GetBoundingBox());
+        }
+
+        public override float GetMinExtreme (int axis)
+        {
+            return MathHelper.Min(A[axis], B[axis], C[axis]);
+        }
+
+        public override float GetMaxExtreme (int axis)
+        {
+            return MathHelper.Max(A[axis], B[axis], C[axis]);
+        }
     }
 }
     

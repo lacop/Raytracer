@@ -51,5 +51,21 @@ namespace Raytracer.Primitives
         {
             return new AABB(Center-Radius, Center+Radius);
         }
+
+        public override bool Intersects (AABB box)
+        {
+            //TODO: improve
+            return box.Intersects(GetBoundingBox());
+        }
+
+        public override float GetMinExtreme (int axis)
+        {
+            return Center[axis] - Radius;
+        }
+
+        public override float GetMaxExtreme (int axis)
+        {
+            return Center[axis] + Radius;
+        }
     }
 }

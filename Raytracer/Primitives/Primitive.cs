@@ -17,6 +17,10 @@ namespace Raytracer.Primitives
         public abstract Vector Normal(Vector p);
 
         public abstract AABB GetBoundingBox();
+        public abstract bool Intersects (AABB box);
+        
+        public abstract float GetMinExtreme (int axis);
+        public abstract float GetMaxExtreme (int axis);
 
         public static AABB GetBoundingBox(List<Primitive> primitives)
         {
@@ -38,6 +42,6 @@ namespace Raytracer.Primitives
 
             return new AABB(min, max);
         }
-
+        
     }
 }
