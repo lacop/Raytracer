@@ -49,13 +49,30 @@ namespace Raytracer.Primitives
 
         public override AABB GetBoundingBox()
         {
+            // TODO: cached bounds
             return new AABB(Center-Radius, Center+Radius);
         }
 
         public override bool Intersects (AABB box)
         {
-            //TODO: improve
-            return box.Intersects(GetBoundingBox());
+            float dmin = 0;
+            Vector bpos = box.Min;
+            Vector bsize = box.Size;
+
+            for (int axis = 0; axis < 3; axis++)
+            {
+                if (Center[axis] < bpos[axis])
+                {
+                    dmin += (Center[axis] - bpos[axis])*(Center[axis] - bpos[axis]);
+                }
+                else if (Center[axis] > (bpos[axis]+bsize[axis]))
+                {
+                    dmin += (Center[axis] - (bpos[axis] + bsize[axis])) * (Center[axis] - (bpos[axis] + bsize[axis]));
+                }
+            }
+
+            return dmin <= (Radius*Radius);
+            
         }
 
         public override float GetMinExtreme (int axis)

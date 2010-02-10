@@ -16,36 +16,50 @@ namespace Raytracer.Acceleration
 
         // TODO: getters/setters
         public int MaxDepth = 8;
+        // TODO: minprims in node to terminate
         // 0.0 - 1.0, relative cost
+        // TODO: find best values
         public float TraversalCost = 1.0f;
-        public float IntersectionCost = 0.6f;
-        //TODO: reward for empty nodes
+        public float IntersectionCost = 0.8f;
+        public float EmptyBonus = 0.05f;
 
         private KDTreeNode root;
+
+        private int stats_total = 0;
+        private int stats_nonleaf = 0;
+        private int stats_empty = 0;
 
         // Completely non-optimized ...
         // TODO: presorted scene, support for planes, ...
         public override void Build (List<Primitive> primitives)
         {
             log.InfoFormat(
-                "Building KDTree for {0} primitives. Maxdepth: {1}, TraversalCost: {2}, IntersectionCost: {3}",
-                primitives.Count, MaxDepth, TraversalCost, IntersectionCost);
+                "Building KDTree for {0} primitives. Maxdepth: {1}, TraversalCost: {2}, IntersectionCost: {3}, EmptyBonus: {4}",
+                primitives.Count, MaxDepth, TraversalCost, IntersectionCost, EmptyBonus);
             
             root = new KDTreeNode(Primitive.GetBoundingBox(primitives), primitives);
+            
+            Stopwatch sw = Stopwatch.StartNew();
             Subdivide(root, 0);
+            sw.Stop();
 
             //TODO: build stats - time, # of (leaf) nodes, min/max prims in leaves, ...
-            log.InfoFormat("Done building");
+            log.InfoFormat("Done building, took {0} ms, total {1} nodes, {2} leaf, {3} empty", sw.ElapsedMilliseconds, stats_total, stats_total-stats_nonleaf, stats_empty);
 
         }
         //TODO: move spliting/cost calc into node class
         private void Subdivide (KDTreeNode node, int depth)
         {
+            stats_total++;
+
             if (depth > MaxDepth)
                 return;
 
-            if (node.primitives == null)
+            if (node.primitives == null || node.primitives.Count == 0)
+            {
+                stats_empty++;
                 return;
+            }
 
             // Select biggest axis
             // TODO: really a good idea?
@@ -57,79 +71,70 @@ namespace Raytracer.Acceleration
 
             float currentCost = TraversalCost + node.bounds.GetSurfaceArea()*node.primitives.Count*IntersectionCost;
 
-            // TODO: compute each split position only once
-            float bestPosition = 0;
-            float bestCost = float.PositiveInfinity;
-            KDTreeNode bestLeft = null;
-            KDTreeNode bestRight = null;
+            SplitPosition[] splitPositions = new SplitPosition[node.primitives.Count*2];
+            int i = 0;
             foreach (Primitive primitive in node.primitives)
             {
-                float minExtreme = primitive.GetMinExtreme(axis);
-                float maxExtreme = primitive.GetMaxExtreme(axis);
+                splitPositions[i] = new SplitPosition(primitive.GetMinExtreme(axis), primitive, SplitPosition.BoundType.Begin);
+                splitPositions[i+1] = new SplitPosition(primitive.GetMaxExtreme(axis), primitive, SplitPosition.BoundType.End);
+                i += 2;
+            }
+            Array.Sort(splitPositions);
 
-                KDTreeNode outNodeLeft = null;
-                KDTreeNode outNodeRight = null;
+            int numLeft = 0;
+            int numRight = node.primitives.Count;
+            int bestPos = 0;
+            float bestCost = float.PositiveInfinity;
+            for (i = 0; i < splitPositions.Length; i++)
+            {
+                if (splitPositions[i].type == SplitPosition.BoundType.End) numRight--;
 
-                float minCost = GetCost(node, axis, minExtreme, out outNodeLeft, out outNodeRight);
-                if (minCost < bestCost)
+                AABB[] split = node.bounds.Split(axis, splitPositions[i].pos);
+
+                // TODO: empty bonus
+                float bonus = (numLeft == 0 || numRight == 0) ? (1.0f - EmptyBonus) : 1.0f;
+                float newCost = 2*TraversalCost + bonus*IntersectionCost*(numLeft*split[0].GetSurfaceArea() + numRight*split[1].GetSurfaceArea());
+                if (newCost < bestCost)
                 {
-                    bestCost = minCost;
-                    bestPosition = minExtreme;
-                    bestLeft = outNodeLeft;
-                    bestRight = outNodeRight;
+                    bestCost = newCost;
+                    bestPos = i;
                 }
 
-                float maxCost = GetCost(node, axis, maxExtreme, out outNodeLeft, out outNodeRight);
-                if (maxCost < bestCost)
-                {
-                    bestCost = maxCost;
-                    bestPosition = maxExtreme;
-                    bestLeft = outNodeLeft;
-                    bestRight = outNodeRight;
-                }
+                if (splitPositions[i].type == SplitPosition.BoundType.Begin) numLeft++;
             }
 
             if (bestCost >= currentCost)
             {
                 return;
             }
-            
+
+            AABB[] bestSplit = node.bounds.Split(axis, splitPositions[bestPos].pos);
+            KDTreeNode bestLeft = new KDTreeNode(bestSplit[0], new List<Primitive>());
+            KDTreeNode bestRight = new KDTreeNode(bestSplit[1], new List<Primitive>());
+
+            for (i = 0; i < bestPos; i++)
+            {
+                if (splitPositions[i].type == SplitPosition.BoundType.Begin)
+                    bestLeft.primitives.Add(splitPositions[i].primitive);
+            }
+            for (i = bestPos+1; i < splitPositions.Length; i++)
+            {
+                if (splitPositions[i].type == SplitPosition.BoundType.End)
+                    bestRight.primitives.Add(splitPositions[i].primitive);
+            }
+
             node.left = bestLeft;
             node.right = bestRight;
 
             Subdivide(bestLeft, depth+1);
             Subdivide(bestRight, depth+1);
-
-        }
-
-        private float GetCost (KDTreeNode node, int axis, float splitPos, out KDTreeNode left, out KDTreeNode right)
-        {
-            AABB[] bounds = node.bounds.Split(axis, splitPos);
             
-            List<Primitive> minPrims = new List<Primitive>();
-            List<Primitive> maxPrims = new List<Primitive>();
-
-            foreach (Primitive primitive in node.primitives)
-            {
-                if (primitive.Intersects(bounds[0]))
-                {
-                    minPrims.Add(primitive);
-                }
-                if (primitive.Intersects(bounds[1]))
-                {
-                    maxPrims.Add(primitive);
-                }
-            }
-
-            left = new KDTreeNode(bounds[0], minPrims);
-            right = new KDTreeNode(bounds[1], maxPrims);
-
-            return 2*TraversalCost +
-                   IntersectionCost*(minPrims.Count*bounds[0].GetSurfaceArea() + maxPrims.Count*bounds[1].GetSurfaceArea());
         }
 
         public override bool FindIntersection (Ray r, out float closest, out Primitive closestPrimitive)
         {
+            // TODO: improve tree traversal
+
             closest = float.PositiveInfinity;
             closestPrimitive = null;
 
@@ -186,5 +191,33 @@ namespace Raytracer.Acceleration
             }
         }
 
+        private class SplitPosition : IComparable
+        {
+            public float pos;
+            public Primitive primitive;
+            public BoundType type;
+
+
+            public SplitPosition(float pos, Primitive primitive, BoundType type)
+            {
+                this.pos = pos;
+                this.primitive = primitive;
+                this.type = type;
+            }
+
+            public int CompareTo(object obj)
+            {
+                return pos.CompareTo(((SplitPosition)obj).pos);
+            }
+
+            internal enum BoundType
+            {
+                Begin,
+                End
+            }
+
+        }
+
     }
+
 }

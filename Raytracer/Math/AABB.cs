@@ -10,6 +10,23 @@ namespace Raytracer.Math
         public Vector Min;
         public Vector Max;
 
+        // width/height/depth from min to max
+        public Vector Size
+        {
+            get
+            {
+                return new Vector((Max.X - Min.X), (Max.Y - Min.Y), (Max.Z - Min.Z));
+            }
+        }
+
+        public Vector Center
+        {
+            get
+            {
+                return (Min+Size);
+            }
+        }
+
         public AABB(Vector min, Vector max)
         {
             Min = min;

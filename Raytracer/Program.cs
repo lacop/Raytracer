@@ -60,7 +60,7 @@ namespace Raytracer
                 new Material(new Vector(0.4f, 0.3f, 0.3f), 1.0f, 0.0f)));
             primitives.Add(new Plane(
                 new Vector(0.4f, 0, -1), 12,
-                new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));*/
+                new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));
             primitives.Add(new Triangle(
                 new Vector(-10, -4, -10), new Vector(-15, -4, 10), new Vector(10, -4, -10),
                 new Material(new Vector(0.5f, 0.3f, 0.5f), 0.6f, 0.3f)));
@@ -86,11 +86,23 @@ namespace Raytracer
                 new Material(new Vector(1.0f, 0.4f, 0.4f), 0.7f, 0.0f)));
             primitives.Add(new Triangle(
                 new Vector(2, 0.8f, 3), new Vector(-1.5f, -2.5f, 1.5f), new Vector(-5.5f, -0.5f, 7),
-                new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)));
+                new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)));*/
 
-            primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
+            //primitives = TriangleMeshLoader.LoadOBJ("../../../gourd.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
             //primitives = TriangleMeshLoader.LoadOBJ("../../../bunny.obj", new Material(new Vector(0.8f, 0.6f, 0.2f), 0.7f, 0.0f)).Cast<Primitive>().ToList();
             
+            
+            int seed = (int) DateTime.Now.Ticks;
+            seed = 61;
+            //*
+            Random r = new Random(seed);
+            for (int i = 0; i < 100; i++ )
+            {
+                primitives.Add(new Sphere(new Vector((float)r.NextDouble()*5-2.5f, (float)r.NextDouble()*5-2.5f, (float)r.NextDouble()*5-2.5f), (float)r.NextDouble()*0.4f+0.1f, new Material(new Vector((float)r.NextDouble(),(float)r.NextDouble(),(float)r.NextDouble()), 0.7f, 0)));
+                primitives.Add(new Triangle(new Vector((float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f), new Vector((float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f), new Vector((float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f, (float)r.NextDouble() * 5 - 2.5f), new Material(new Vector((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble()), 0.7f, 0)));
+            }
+            /**/
+
             lights.Add(new Light(new Vector(0, 5, 5)));
             lights.Add(new Light(new Vector(-3, 5, 1)));
             
@@ -101,7 +113,8 @@ namespace Raytracer
             ////////////////////////////////////////////////////////////////
             
             log4net.Config.XmlConfigurator.Configure();
-            
+
+            log.DebugFormat("Seed is {0}", seed);
             
             log.Info("Scene loaded, building acceleration structure");
             accel.Build(primitives);
@@ -178,10 +191,10 @@ namespace Raytracer
 
                     // Perspective
                     // TODO: camera class with origin,lookat and FOV
-                    Vector pt = new Vector(x1 + x*dx + dx*i, y1 + y*dy + dy*j, -1);
+                    Vector pt = new Vector(x1 + x*dx + dx*i, y1 + y*dy + dy*j, -3);
                     //Vector pt = new Vector(x1+x*dx+dx*i, y1+y*dy+dy*j, -1);
                             
-                    Vector o = new Vector(1.5f, 1, -5);
+                    Vector o = new Vector(1.5f, 1, -7);
                     //Vector o = new Vector(0, 0.2f, -10);
 
 
@@ -221,6 +234,7 @@ namespace Raytracer
             Vector color = new Vector(0, 0, 0);
 
             // Lightning
+            /*
             foreach (var light in lights)
             {
                 Vector dir = light.Position - ip;
@@ -249,8 +263,8 @@ namespace Raytracer
 
                 color += prim.Material.Color*prim.Material.Diffuse*(d*shade + ambientLight); //flipped-params operators
 
-            }
-            //color = prim.Material.Color*prim.Material.Diffuse; //no lightning mode
+            }*/
+            color = prim.Material.Color*prim.Material.Diffuse; //no lightning mode
 
             // Reflection
             if (prim.Material.Reflection > 0 && depth <= 10) //TODO: render state, limits, ...
